@@ -1,0 +1,287 @@
+
+#ifndef __SOFT_SE_IDENTITY_H__
+#define __SOFT_SE_IDENTITY_H__
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
+/*!
+ * When set to 1 DevEui is LORAWAN_DEVICE_EUI
+ * When set to 0 DevEui is automatically set with a value provided by MCU platform
+ */
+#define STATIC_DEVICE_EUI                                  1
+
+#define LORAWAN_JOIN_EUI                                   { 0x80, 0x80, 0x80, 0xAA, 0xDD, 0xFF, 0x00, 0x01 }
+#define LORAWAN_DEVICE_EUI                                 { 0x12, 0x00, 0x00, 0x00, 0x00, 0x12, 0x12, 0x01 }
+
+#define STATIC_DEVICE_ADDRESS                              0
+#define LORAWAN_DEVICE_ADDRESS                             ( uint32_t )0x0100000A
+
+#define LORAWAN_APP_KEY                                    35,C4,33,AB,C7,1A,BB,C5,AB,09,17,6B,68,9B,93,FB
+#define LORAWAN_NWK_KEY                                    35,C4,33,AB,C7,1A,BB,C5,AB,09,17,6B,68,9B,93,FB
+#define LORAWAN_NWK_S_KEY                                  35,C4,33,AB,C7,1A,BB,C5,AB,09,17,6B,68,9B,93,FB
+#define LORAWAN_APP_S_KEY                                  35,C4,33,AB,C7,1A,BB,C5,AB,09,17,6B,68,9B,93,FB
+/*!
+ * Format commissioning keys
+ */
+#define RAW_TO_INT8A(a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p) {0x##a,0x##b,0x##c,0x##d,\
+                                                        0x##e,0x##f,0x##g,0x##h,\
+                                                        0x##i,0x##j,0x##k,0x##l,\
+                                                        0x##m,0x##n,0x##o,0x##p}
+
+#define FORMAT_KEY(...) RAW_TO_INT8A(__VA_ARGS__)
+
+#if (USE_LRWAN_1_1_X_CRYPTO == 1)
+#define SESSION_KEYS_LIST                                                                                           \
+           {                                                                                                        \
+            /*!                                                                                                     \
+             * Join session integrity key (Dynamically updated)                                                     \
+             * WARNING: NOT USED FOR 1.0.x DEVICES                                                                  \
+             */                                                                                                     \
+            .KeyID    = J_S_INT_KEY,                                                                                \
+            .KeyValue = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, \
+                          0x00 },                                                                                   \
+        },                                                                                                          \
+        {                                                                                                           \
+            /*!                                                                                                     \
+             * Join session encryption key (Dynamically updated)                                                    \
+             * WARNING: NOT USED FOR 1.0.x DEVICES                                                                  \
+             */                                                                                                     \
+            .KeyID    = J_S_ENC_KEY,                                                                                \
+            .KeyValue = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, \
+                          0x00 },                                                                                   \
+        },                                                                                                          \
+        {                                                                                                           \
+            /*!                                                                                                     \
+             * Forwarding Network session integrity key                                                             \
+             * WARNING: NWK_S_KEY FOR 1.0.x DEVICES                                                                 \
+             */                                                                                                     \
+            .KeyID    = F_NWK_S_INT_KEY,                                                                            \
+            .KeyValue = FORMAT_KEY(LORAWAN_NWK_S_KEY),                                                              \
+        },                                                                                                          \
+        {                                                                                                           \
+            /*!                                                                                                     \
+             * Serving Network session integrity key                                                                \
+             * WARNING: NOT USED FOR 1.0.x DEVICES. MUST BE THE SAME AS \ref LORAWAN_F_NWK_S_INT_KEY                \
+             */                                                                                                     \
+            .KeyID    = S_NWK_S_INT_KEY,                                                                            \
+            .KeyValue = { 0x2B, 0x7E, 0x15, 0x16, 0x28, 0xAE, 0xD2, 0xA6, 0xAB, 0xF7, 0x15, 0x88, 0x09, 0xCF, 0x4F, \
+                          0x3C },                                                                                   \
+        },                                                                                                          \
+        {                                                                                                           \
+            /*!                                                                                                     \
+             * Network session encryption key                                                                       \
+             * WARNING: NOT USED FOR 1.0.x DEVICES. MUST BE THE SAME AS \ref LORAWAN_F_NWK_S_INT_KEY                \
+             */                                                                                                     \
+            .KeyID    = NWK_S_ENC_KEY,                                                                              \
+            .KeyValue = { 0x2B, 0x7E, 0x15, 0x16, 0x28, 0xAE, 0xD2, 0xA6, 0xAB, 0xF7, 0x15, 0x88, 0x09, 0xCF, 0x4F, \
+                          0x3C },                                                                                   \
+        },                                                                                                          \
+        {                                                                                                           \
+            /*!                                                                                                     \
+             * Application session key                                                                              \
+             */                                                                                                     \
+            .KeyID    = APP_S_KEY,                                                                                  \
+            .KeyValue = FORMAT_KEY(LORAWAN_APP_S_KEY),                                                              \
+        },
+#else /* USE_LRWAN_1_1_X_CRYPTO == 0 */
+#define SESSION_KEYS_LIST                                                                                           \
+        {                                                                                                           \
+            /*!                                                                                                     \
+             * Network session key                                                                                  \
+             */                                                                                                     \
+            .KeyID    = NWK_S_KEY,                                                                                  \
+            .KeyValue = FORMAT_KEY(LORAWAN_NWK_S_KEY),                                                              \
+        },                                                                                                          \
+        {                                                                                                           \
+            /*!                                                                                                     \
+             * Application session key                                                                              \
+             */                                                                                                     \
+            .KeyID    = APP_S_KEY,                                                                                  \
+            .KeyValue = FORMAT_KEY(LORAWAN_APP_S_KEY),                                                              \
+        },
+#endif /* USE_LRWAN_1_1_X_CRYPTO */
+
+#if (LORAMAC_MAX_MC_CTX == 1)
+#define SESSION_MC_KEYS_LIST                                                                                        \
+        {                                                                                                           \
+            /*!                                                                                                     \
+             * Multicast group #0 root key (Dynamically updated)                                                    \
+             */                                                                                                     \
+            .KeyID    = MC_KEY_0,                                                                                   \
+            .KeyValue = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, \
+                          0x00 },                                                                                   \
+        },                                                                                                          \
+        {                                                                                                           \
+            /*!                                                                                                     \
+             * Multicast group #0 application session key (Dynamically updated)                                     \
+             */                                                                                                     \
+            .KeyID    = MC_APP_S_KEY_0,                                                                             \
+            .KeyValue = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, \
+                          0x00 },                                                                                   \
+        },                                                                                                          \
+        {                                                                                                           \
+            /*!                                                                                                     \
+             * Multicast group #0 network session key (Dynamically updated)                                         \
+             */                                                                                                     \
+            .KeyID    = MC_NWK_S_KEY_0,                                                                             \
+            .KeyValue = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, \
+                          0x00 },                                                                                   \
+        },
+#else /* LORAMAC_MAX_MC_CTX > 1 */
+#define SESSION_MC_KEYS_LIST                                                                                        \
+        {                                                                                                           \
+            /*!                                                                                                     \
+             * Multicast group #0 root key (Dynamically updated)                                                    \
+             */                                                                                                     \
+            .KeyID    = MC_KEY_0,                                                                                   \
+            .KeyValue = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, \
+                          0x00 },                                                                                   \
+        },                                                                                                          \
+        {                                                                                                           \
+            /*!                                                                                                     \
+             * Multicast group #0 application session key (Dynamically updated)                                     \
+             */                                                                                                     \
+            .KeyID    = MC_APP_S_KEY_0,                                                                             \
+            .KeyValue = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, \
+                          0x00 },                                                                                   \
+        },                                                                                                          \
+        {                                                                                                           \
+            /*!                                                                                                     \
+             * Multicast group #0 network session key (Dynamically updated)                                         \
+             */                                                                                                     \
+            .KeyID    = MC_NWK_S_KEY_0,                                                                             \
+            .KeyValue = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, \
+                          0x00 },                                                                                   \
+        },                                                                                                          \
+        {                                                                                                           \
+            /*!                                                                                                     \
+             * Multicast group #1 root key (Dynamically updated)                                                    \
+             */                                                                                                     \
+            .KeyID    = MC_KEY_1,                                                                                   \
+            .KeyValue = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, \
+                          0x00 },                                                                                   \
+        },                                                                                                          \
+        {                                                                                                           \
+            /*!                                                                                                     \
+             * Multicast group #1 application session key (Dynamically updated)                                     \
+             */                                                                                                     \
+            .KeyID    = MC_APP_S_KEY_1,                                                                             \
+            .KeyValue = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, \
+                          0x00 },                                                                                   \
+        },                                                                                                          \
+        {                                                                                                           \
+            /*!                                                                                                     \
+             * Multicast group #1 network session key (Dynamically updated)                                         \
+             */                                                                                                     \
+            .KeyID    = MC_NWK_S_KEY_1,                                                                             \
+            .KeyValue = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, \
+                          0x00 },                                                                                   \
+        },                                                                                                          \
+        {                                                                                                           \
+            /*!                                                                                                     \
+             * Multicast group #2 root key (Dynamically updated)                                                    \
+             */                                                                                                     \
+            .KeyID    = MC_KEY_2,                                                                                   \
+            .KeyValue = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, \
+                          0x00 },                                                                                   \
+        },                                                                                                          \
+        {                                                                                                           \
+            /*!                                                                                                     \
+             * Multicast group #2 application session key (Dynamically updated)                                     \
+             */                                                                                                     \
+            .KeyID    = MC_APP_S_KEY_2,                                                                             \
+            .KeyValue = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, \
+                          0x00 },                                                                                   \
+        },                                                                                                          \
+        {                                                                                                           \
+            /*!                                                                                                     \
+             * Multicast group #2 network session key (Dynamically updated)                                         \
+             */                                                                                                     \
+            .KeyID    = MC_NWK_S_KEY_2,                                                                             \
+            .KeyValue = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, \
+                          0x00 },                                                                                   \
+        },                                                                                                          \
+        {                                                                                                           \
+            /*!                                                                                                     \
+             * Multicast group #3 root key (Dynamically updated)                                                    \
+             */                                                                                                     \
+            .KeyID    = MC_KEY_3,                                                                                   \
+            .KeyValue = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, \
+                          0x00 },                                                                                   \
+        },                                                                                                          \
+        {                                                                                                           \
+            /*!                                                                                                     \
+             * Multicast group #3 application session key (Dynamically updated)                                     \
+             */                                                                                                     \
+            .KeyID    = MC_APP_S_KEY_3,                                                                             \
+            .KeyValue = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, \
+                          0x00 },                                                                                   \
+        },                                                                                                          \
+        {                                                                                                           \
+            /*!                                                                                                     \
+             * Multicast group #3 network session key (Dynamically updated)                                         \
+             */                                                                                                     \
+            .KeyID    = MC_NWK_S_KEY_3,                                                                             \
+            .KeyValue = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, \
+                          0x00 },                                                                                   \
+        },
+#endif /* LORAMAC_MAX_MC_CTX */
+
+#define SOFT_SE_KEY_LIST                                                                                            \
+    {                                                                                                               \
+        {                                                                                                           \
+            /*!                                                                                                     \
+             * Application root key                                                                                 \
+             * WARNING: FOR 1.0.x DEVICES IT IS THE \ref LORAWAN_GEN_APP_KEY                                        \
+             */                                                                                                     \
+            .KeyID    = APP_KEY,                                                                                    \
+            .KeyValue = FORMAT_KEY(LORAWAN_APP_KEY),                                                                \
+        },                                                                                                          \
+        {                                                                                                           \
+            /*!                                                                                                     \
+             * Network root key                                                                                     \
+             * WARNING: FOR 1.0.x DEVICES IT IS THE \ref LORAWAN_APP_KEY                                            \
+             */                                                                                                     \
+            .KeyID    = NWK_KEY,                                                                                    \
+            .KeyValue = FORMAT_KEY(LORAWAN_NWK_KEY),                                                                \
+        },                                                                                                          \
+        SESSION_KEYS_LIST                                                                                           \
+        {                                                                                                           \
+            /*!                                                                                                     \
+             * Multicast root key (Dynamically updated)                                                             \
+             */                                                                                                     \
+            .KeyID    = MC_ROOT_KEY,                                                                                \
+            .KeyValue = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, \
+                          0x00 },                                                                                   \
+        },                                                                                                          \
+        {                                                                                                           \
+            /*!                                                                                                     \
+             * Multicast key encryption key (Dynamically updated)                                                   \
+             */                                                                                                     \
+            .KeyID    = MC_KE_KEY,                                                                                  \
+            .KeyValue = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, \
+                          0x00 },                                                                                   \
+        },                                                                                                          \
+        SESSION_MC_KEYS_LIST                                                                                        \
+        {                                                                                                           \
+            /*!                                                                                                     \
+             * All zeros key. (ClassB usage)(constant)                                                              \
+             */                                                                                                     \
+            .KeyID    = SLOT_RAND_ZERO_KEY,                                                                         \
+            .KeyValue = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, \
+                          0x00 },                                                                                   \
+        },                                                                                                          \
+    }
+
+/* USER CODE BEGIN EC */
+
+/* USER CODE END EC */
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif  /*  __SOFT_SE_IDENTITY_H__ */
